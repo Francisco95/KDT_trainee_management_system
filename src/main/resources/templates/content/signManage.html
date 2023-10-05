@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layout/mng/mngDefaultLayout}">
+
+<th:block layout:fragment="content">
+	<style>
+		ul.list {
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+			border-bottom: 1px solid #ccc;
+		}
+
+		ul.list::after {
+			content: '';
+			display: block;
+			clear: both;
+		}
+
+		.tab-button {
+			display: block;
+			padding: 10px 20px 10px 20px;
+			float: left;
+			margin-right: -1px;
+			margin-bottom: -1px;
+			color: grey;
+			text-decoration: none;
+			cursor: pointer;
+		}
+
+		.orange {
+			border-top: 2px solid orange;
+			border-right: 1px solid #ccc;
+			border-bottom: 1px solid white;
+			border-left: 1px solid #ccc;
+			color: black;
+			margin-top: -2px;
+		}
+
+		.tab-content {
+			display: none;
+			padding: 10px;
+		}
+
+		.show {
+			display: block;
+		}
+	</style>
+
+	<div class="content-wrapper">
+		<!-- Main content -->
+		<section class="content">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="container mt-5">
+						<ul class="list nav justify-content-center">
+							<li class="tab-button" data-id="0">가입대기</li>
+							<li class="tab-button call-trainee-list-button orange" data-id="1">훈련생</li>
+							<li class="tab-button call-graduate-list-button" data-id="2">수료생</li>
+						</ul>
+						<div class="tab-content">
+							<div class="col-md-12">
+								<ul class="list-group">
+									<li class="list-group-item" style="word-spacing: 7vw; height: 40vw;">
+										<div class="form-check-main" style="margin-left: 2vw;">
+											<input class="form-check-input me-1" id="allpermit" name="allpermit" type="checkbox" value=""
+												aria-label="...">
+											<input class="form-check-input me-1" id="permitall" name="permitall"
+												type="checkbox" value="" aria-label="...">
+											<span class="form-check-name">전체수락</span>
+											<span class="form-check-id">학생이름</span>
+											<span class="form-check-email">학생이메일</span>
+											<span class="form-check-date">가입일자</span>
+											<span class="form-check-info">정보보기</span>
+											<hr>
+											<table class="waitList">
+												
+											</table>
+										</div>
+										<div class="form-check-next" style="display: flex; float:left">
+											<button type="button" class="btn btn-light">이전</button>
+											<button type="button" class="btn btn-light">다음</button>
+										</div>
+										<div style="display: inline-flex; float: right">
+											<button type="button" id="acceptbtn" name="acceptbtn" class="btn btn-light">수락</button>
+											<button type="button" class="btn btn-light">거절</button>
+										</div>
+									</li>
+								</ul>
+
+								<!-- /.col -->
+							</div>
+						</div>
+						<div class="tab-content show" style="text-align: center;">
+							<div class="col-md-12">
+								<ul class="list-group">
+									<li class="list-group-item" style="word-spacing: 7vw; height: 40vw;">
+										<div class="form-check-main" style="margin-left: 2vw;">
+											<span class="form-check-name">아이디</span>
+											<span class="form-check-id">이름</span>
+											<span class="form-check-email">이메일</span>
+											<span class="form-check-attendance">출석률</span>
+											<span class="form-check-date">가입일자</span>
+											<span class="form-check-info">정보보기</span>
+											<hr>
+											<table class="appendTrainee">
+												
+											</table>
+										</div>
+										<div class="form-check-next" style="display: flex;">
+											<button type="button" class="btn btn-light">이전</button>
+											<button type="button" class="btn btn-light">다음</button>
+										</div>
+									</li>
+								</ul>
+
+								<!-- /.col -->
+							</div>
+						</div>
+						<div class="tab-content" style="text-align: center;">
+							<div class="col-md-12">
+								<ul class="list-group">
+									<li class="list-group-item" style="word-spacing: 7vw; height: 40vw;">
+										<div class="form-check-main" style="margin-left: 2vw;">
+											<span class="form-check-name">아이디</span>
+											<span class="form-check-id">이름</span>
+											<span class="form-check-email">이메일</span>
+											<span class="form-check-attendance">출석률</span>
+											<span class="form-check-date">수료일자</span>
+											<span class="form-check-job">취업여부</span>
+											<span class="form-check-info">정보보기</span>
+											<hr>
+											<table class="appendGradu">
+												
+											</table>
+										</div>
+										<div class="form-check-next" style="display: flex;">
+											<button type="button" class="btn btn-light">이전</button>
+											<button type="button" class="btn btn-light">다음</button>
+										</div>
+									</li>
+								</ul>
+
+								<!-- /.col -->
+							</div>
+						</div>
+					</div>
+					<!-- /.row -->
+				</div><!-- /.container-fluid -->
+		</section>
+		<!-- /.content -->
+	</div>
+	<script>
+		$(function () {
+			/* initialize the calendar
+			 -----------------------------------------------------------------*/
+			//Date for the calendar events (dummy data)
+			var date = new Date()
+			var d = date.getDate(),
+				m = date.getMonth(),
+				y = date.getFullYear()
+
+			var Calendar = FullCalendar.Calendar;
+			var Draggable = FullCalendar.Draggable;
+
+			var containerEl = document.getElementById('external-events');
+			var checkbox = document.getElementById('drop-remove');
+			var calendarEl = document.getElementById('calendar');
+
+			// initialize the external events
+			// -----------------------------------------------------------------
+
+			new Draggable(containerEl, {
+				itemSelector: '.external-event',
+				eventData: function (eventEl) {
+					return {
+						title: eventEl.innerText,
+						backgroundColor: window.getComputedStyle(eventEl, null).getPropertyValue('background-color'),
+						borderColor: window.getComputedStyle(eventEl, null).getPropertyValue('background-color'),
+						textColor: window.getComputedStyle(eventEl, null).getPropertyValue('color'),
+					};
+				}
+			});
+
+			var calendar = new Calendar(calendarEl, {
+				headerToolbar: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'dayGridMonth,timeGridWeek,timeGridDay'
+				},
+				themeSystem: 'bootstrap',
+				//Random default events
+				events: [
+					{
+						title: 'All Day Event',
+						start: new Date(y, m, 1),
+						backgroundColor: '#f56954', //red
+						borderColor: '#f56954', //red
+						allDay: true
+					},
+					{
+						title: 'Long Event',
+						start: new Date(y, m, d - 5),
+						end: new Date(y, m, d - 2),
+						backgroundColor: '#f39c12', //yellow
+						borderColor: '#f39c12' //yellow
+					},
+					{
+						title: 'Meeting',
+						start: new Date(y, m, d, 10, 30),
+						allDay: false,
+						backgroundColor: '#0073b7', //Blue
+						borderColor: '#0073b7' //Blue
+					},
+					{
+						title: 'Lunch',
+						start: new Date(y, m, d, 12, 0),
+						end: new Date(y, m, d, 14, 0),
+						allDay: false,
+						backgroundColor: '#00c0ef', //Info (aqua)
+						borderColor: '#00c0ef' //Info (aqua)
+					},
+					{
+						title: 'Birthday Party',
+						start: new Date(y, m, d + 1, 19, 0),
+						end: new Date(y, m, d + 1, 22, 30),
+						allDay: false,
+						backgroundColor: '#00a65a', //Success (green)
+						borderColor: '#00a65a' //Success (green)
+					},
+					{
+						title: 'Click for Google',
+						start: new Date(y, m, 28),
+						end: new Date(y, m, 29),
+						url: 'https://www.google.com/',
+						backgroundColor: '#3c8dbc', //Primary (light-blue)
+						borderColor: '#3c8dbc' //Primary (light-blue)
+					}
+				],
+				editable: true,
+				droppable: true, // this allows things to be dropped onto the calendar !!!
+				drop: function (info) {
+					// is the "remove after drop" checkbox checked?
+					if (checkbox.checked) {
+						// if so, remove the element from the "Draggable Events" list
+						info.draggedEl.parentNode.removeChild(info.draggedEl);
+					}
+				}
+			});
+
+			calendar.render();
+			// $('#calendar').fullCalendar()
+
+			/* ADDING EVENTS */
+			var currColor = '#3c8dbc' //Red by default
+			// Color chooser button
+			$('#color-chooser > li > a').click(function (e) {
+				e.preventDefault()
+				// Save color
+				currColor = $(this).css('color')
+				// Add color effect to button
+				$('#add-new-event').css({
+					'background-color': currColor,
+					'border-color': currColor
+				})
+			})
+			$('#add-new-event').click(function (e) {
+				e.preventDefault()
+				// Get value and make sure it is not null
+				var val = $('#new-event').val()
+				if (val.length == 0) {
+					return
+				}
+
+				// Create events
+				var event = $('<div />')
+				event.css({
+					'background-color': currColor,
+					'border-color': currColor,
+					'color': '#fff'
+				}).addClass('external-event')
+				event.text(val)
+				$('#external-events').prepend(event)
+
+				// Add draggable funtionality
+				ini_events(event)
+
+				// Remove event from text input
+				$('#new-event').val('')
+			})
+		})
+		var 버튼 = $('.tab-button');
+		var tab = $('.tab-content');
+
+		// for(let i = 0; i < $('.tab-button').length; i++){
+		//     버튼.eq(i).on('click', function(){
+		//         버튼.removeClass('orange');
+		//         버튼.eq(i).addClass('orange');
+		//         tab.removeClass('show');
+		//         tab.eq(i).addClass('show');
+		//     });
+		// }
+
+		function 탭열기(숫자) {
+			버튼.removeClass('orange');
+			버튼.eq(숫자).addClass('orange');
+			tab.removeClass('show');
+			tab.eq(숫자).addClass('show');
+		}
+		
+		function getTraineeList() {
+			$(".appendTrainee").empty();
+			$.ajax({
+				type:"POST",
+				url:"getTraineeList.com",
+				dataType:"json",
+				success: function (data){
+					console.log(data)
+					$.each(data, function(index, item){
+						trInsert = ""
+						trInsert += '<tr>';
+						trInsert += '<td class="form-check-input-id">' + item.userId + '</td>';
+						trInsert += '<td class="form-check-input-name">' + item.name + '</td>';
+						trInsert += '<td class="form-check-input-email">' + item.email + '</td>';
+						trInsert += '<td class="form-check-input-date">' + item.registDt + '</td>';
+						trInsert += '<button type="button" class="btn btn-light" id="info">정보</button>';
+						trInsert += '</tr>';
+						$(".appendTrainee").append(trInsert);
+					})
+				},
+				error: function (){
+				}
+			})
+		}
+		
+		function getGraduList() {
+			$(".appendGradu").empty();
+			$.ajax({
+				type:"POST",
+				url:"getGraduList.com",
+				dataType:"json",
+				success: function (data){
+					console.log(data)
+					$.each(data, function(index, item){
+						trInsert = ""
+						trInsert += '<tr>';
+						trInsert += '<td class="form-check-input-id">' + item.userId + '</td>';
+						trInsert += '<td class="form-check-input-name">' + item.name + '</td>';
+						trInsert += '<td class="form-check-input-email">' + item.email + '</td>';
+						trInsert += '<td class="form-check-input-date">' + item.registDt + '</td>';
+						trInsert += '<button type="button" class="btn btn-light" id="info">정보</button>';
+						trInsert += '</tr>'
+						$(".appendGradu").append(trInsert);
+					})
+				},
+				error: function (){
+				}
+			})
+		}
+
+		$('.list').click(function (e) {
+			탭열기(e.target.dataset.id);
+			if (e.target.dataset.id == 0) {
+				getWaitUser();
+			}
+			if (e.target.dataset.id == 1) {
+				getTraineeList();
+			}
+			if (e.target.dataset.id == 2){
+				getGraduList();
+			}
+		})
+		
+		$('#sign-accept').on('click', function () {
+			var permitall = $('#permitall');
+			var permit = $('input[name=permit]');
+			var check = $('#check');
+			var checklist = [];
+
+			if (!permitall.is(':checked')) {
+				$('input[name=permit]:checked').each(function () {
+					checklist.push($(this).val());
+				})
+				console.log(checklist)
+			}
+		})
+		
+		
+		var waitArr = [];
+		var filterArr = [];
+		
+		$('input:checkbox[id="allpermit"]').click(function(){
+			console.log("checked");
+			var checked = $('input:checkbox[id="allpermit"]').is(':checked');
+		
+			if(checked){
+				console.log("ifchecked");
+				$('input:checkbox[name="permitcheck"]').prop('checked',true);
+			}
+			else{
+				$('input:checkbox[name="permitcheck"]').prop('checked',false);
+			}
+		});
+		
+		$('button[name="acceptbtn"]').click(function(){
+			//전체 수락이 체크되지 않았을때.
+			if(!$("input:checkbox[id='allpermit']").is(':checked')){
+				filterArr = [];
+				//체크 된 값들만 모아.
+				$("input[name='permitcheck']:checked").each(function(index, item){
+					$.each(waitArr, function(i){
+						if(waitArr[i].pkUserSeq == item.getAttribute("value")){
+							//배열에 넣어 넘기기.
+							filterArr.push(waitArr[i])
+						}
+					})
+				})
+				$.ajax({
+					type : "POST",
+					url : "signUser.com",
+					contentType: 'application/json',
+					data : JSON.stringify(filterArr),
+					success : function(data){
+						console.log("실행됨.");
+					},
+					error : function(){
+						console.log("실패함.");
+					}
+				});
+			}
+			else{
+				$.ajax({
+					type : "GET",
+					url : "signAlluser.com",
+					contentType: 'application/json',
+					data : {},
+					success : function(data){
+					},
+					error : function(){
+					}
+				});
+			}
+			getWaitUser();
+		})
+		
+		function getWaitUser() {
+			$(".waitList").empty();
+			$.ajax({
+				type: "POST",
+				url: "waitUser.com",
+				dataType: "json",
+				success: function (data) {
+					$.each(data, function(index, item) { // 데이터 =item
+						waitArr.push(item);
+						trInsert = ""
+						trInsert += '<tr>';
+						trInsert += '<td><input class="form-check-input me-1" type="checkbox" id="permitcheck" name="permitcheck" value="' + item.pkUserSeq + '" aria-label="..."></td>';
+						trInsert += '<td class="form-check-input-id">' + item.userId + '</td>';
+						trInsert += '<td class="form-check-input-name">' + item.name + '</td>';
+						trInsert += '<td class="form-check-input-email">' + item.email + '</td>';
+						trInsert += '<td class="form-check-input-date">' + item.registDt + '</td>';
+						trInsert += '<td><button type="button" class="btn btn-light" id="info">정보</button></td>';
+						trInsert += '</tr>'
+						$(".waitList").append(trInsert);
+					});
+				},
+				error: function () {
+				}
+			});
+		}
+		
+	</script>
+</th:block>
+
+</html>
+<th:block layout:fragment="content">
+	<th:block th:each ${item : userList}>
+		<ul class="list-group">
+			<li class="list-group-item">
+				<input class="form-check-input me-1" type="checkbox" value="" aria-label="...">
+				<span class="form-check-input-id" th:text=${item.userId}></span>
+				<span class="form-check-input-name" th:text=${item.name}></span>
+				<span class="form-check-input-email" th:text=${item.email}></span>
+				<span class="form-check-input-date" th:text=${item.registDt}></span>
+			</li>
+			<form action="">
+				<button class="form-sign-accept">수락</button>
+				<button class="form-sign-flase">거절</button>
+			</form>
+		</ul>
+		
+		<div class="col-12">
+			<nav aria-label="Page navigation example" style="padding: 50px;">
+				<ul class="pagination justify-content-center">
+					<li class="page-item previous th-disabled" th:classappend="${paging.prev == false} ? 'disabled'">
+						<a th:href="@{/chart.com(page=${paging.startPage - 1})}" tabindex="0"
+							class="page-link">Previous</a>
+					</li>
+					<div th:each="pNo: ${#numbers.sequence(paging.startPage, paging.endPage)}">
+						<li class="page-item" th:classappend="${paging.cri.page == pNo} ? 'active'">
+							<a th:href="@{/chart.com(page=${pNo})}" tabindex="0" aria-controls="dataTable"
+								class="page-link" th:text="${pNo}"></a>
+						</li>
+					</div>
+					<li class="page-item next th-disabled" th:classappend="${paging.next == false} ? 'disabled'">
+						<a th:href="@{/chart.com(page=${paging.endPage + 1})}" tabindex="0" aria-controls="dataTable"
+							class="page-link">Next</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</th:block>
+</th:block>
+
+
+</html>

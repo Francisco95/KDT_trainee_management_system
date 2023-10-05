@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layout/mng/mngSubjectLayout}">
+
+<div layout:fragment="content">
+	<div class="row">
+		<div class="col-12 p-5">
+			<div class="row">
+				<div class="col-6">
+					<h2>시험</h2>
+				</div>
+				<div class="card-tools col-6 text-right">
+					<button data-toggle="modal" data-target="#modal-xl" type="button" class="btn btn-primary"
+						data-action="create" onclick="changeButtonAction(this)">
+						<span>등록</span>
+					</button>
+				</div>
+			</div>
+			<table class="table" id="addrow">
+				<thead>
+					<tr>
+						<th style="width: 5%;" scope="col">No.</th>
+						<th style="width: 65%;" scope="col">과목명</th>
+						<th style="width: 15%;" scope="col">날짜</th>
+						<th style="width: 7.5%;" scope="col">미리보기</th>
+						<th style="width: 7.5%;" scope="col">시작</th>
+					</tr>
+				</thead>
+
+				<tbody>
+
+					<tr th:each="item, index : ${exameList}">
+						<td th:text="${index.index + 1}"></td>
+						<td th:text="${item.subjectName}"></td>
+						<td th:text="${item.registDt}"></td>
+						<td>
+							<button data-toggle="modal" data-target="#modal-xl-two"
+								th:attr="pkExamSeq=${item.pkExamSeq}" type="button" class="btn btn-info updateBtn"
+								data-action="modify">
+								<span>보기</span>
+							</button>
+						</td>
+						<td>
+							<button th:attr="pkExamSeq=${item.pkExamSeq}" type="button" class="btn btn-primary startBtn"
+								th:disabled="${item.examDivn == 'Y'}">
+								<span>시작</span>
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="col-12 p-5">
+			<div class="row">
+				<div class="col-6">
+					<h2>평가</h2>
+				</div>
+			</div>
+			<table class="table" id="addrow">
+				<thead>
+					<tr>
+						<th style="width: 5%;" scope="col">No.</th>
+						<th style="width: 50%;" scope="col">과목명</th>
+						<th style="width: 20%;" scope="col">날짜</th>
+						<th style="width: 10%;" scope="col">학생</th>
+						<th style="width: 7.5%;" scope="col">미채점</thstyle="width: 5%;">
+						<th style="width: 7.5%;" scope="col">수정</th>
+					</tr>
+				</thead>
+
+				<tbody>
+
+					<tr th:each="item, index : ${exameResultList}">
+						<td th:text="${(index.index) + 1}"></td>
+						<td th:text="${item.subjectName}"></td>
+						<td th:text="${item.registDt}"></td>
+						<td th:text="${item.name}"></td>
+						<td>
+							<button data-toggle="modal" data-target="#modal-xl-three"
+								th:attr="pkUserSeq=${item.pkUserSeq}" type="button" class="btn btn-info resultBtn"
+								data-action="modify">
+								<span>채점</span>
+							</button>
+						</td>
+						<td>
+							<button data-toggle="modal" data-target="#modal-xl-four"
+								th:attr="pkUserSeq=${item.pkUserSeq}" type="button" class="btn btn-success resultDoneBtn"
+								data-action="modify">
+								<span>수정</span>
+							</button>
+						</td>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Modal-create-exam -->
+	<div class="modal fade" id="modal-xl" style="display: none;" aria-hidden="true">
+		<form action="/mng/exam/create" method="POST" enctype="multipart/form-data">
+			<div class="modal-dialog modal-dialog-cented modal-xl">
+				<div class="modal-content">
+					<div class="col-12 modal-header">
+						<div class="col-6">
+							<h4 class="col-12 modal-title">시험 등록</h4>
+						</div>
+						<div class="card-tools col-6 text-right">
+							<button onclick="javascript:rowAdd();" type="button" class="btn btn-primary btn-sm">
+								<span>추가</span>
+							</button>
+							<button onclick="javascript:rowDel();" type="button" class="btn btn-danger btn-sm">
+								<span>삭제</span>
+							</button>
+						</div>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+
+							<div id="qeustionDiv" class="row">
+
+							</div>
+
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+						<button type="submit" divn="create" class="btn btn-primary modelBtn">
+							<span>등록</span>
+						</button>
+						<button type="button" divn="delete" class="btn btn-danger modelBtn">
+							<span>삭제</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- Modal-delete-exam -->
+	<div class="modal fade" id="modal-xl-two" style="display: none;" aria-hidden="true">
+		<form action="/mng/exam/delete" method="POST">
+			<input id="pkExamSeq" name="pkExamSeq" type="hidden">
+			<div class="modal-dialog modal-dialog-cented modal-xl">
+				<div class="modal-content">
+					<div class="col-12 modal-header">
+						<div class="col-6">
+							<h4 class="col-12 modal-title">시험 미리보기</h4>
+						</div>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+							<div id="sampleDiv" class="row">
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+						<button type="submit" divn="delete" class="btn btn-danger modelBtn">
+							<span>삭제</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- Modal-result-exam -->
+	<div class="modal fade" id="modal-xl-three" style="display: none;" aria-hidden="true">
+		<form action="/mng/exam/result/score" method="POST">
+			<div class="modal-dialog modal-dialog-cented modal-xl">
+				<div class="modal-content">
+					<div class="col-12 modal-header">
+						<div class="col-6">
+							<h4 class="col-12 modal-title">시험 채점</h4>
+						</div>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+							<div id="resultDiv" class="row">
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+						<button type="submit" divn="delete" class="btn btn-primary modelBtn">
+							<span>채점</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- Modal-result-done-exam -->
+	<div class="modal fade" id="modal-xl-four" style="display: none;" aria-hidden="true">
+		<form action="/mng/exam/result/score" method="POST">
+			<div class="modal-dialog modal-dialog-cented modal-xl">
+				<div class="modal-content">
+					<div class="col-12 modal-header">
+						<div class="col-6">
+							<h4 class="col-12 modal-title">시험 채점</h4>
+						</div>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+							<div id="resultDoneDiv" class="row">
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+						<button type="submit" divn="delete" class="btn btn-success modelBtn">
+							<span>수정</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<script>
+		var QUESTION_ARRAY = [];
+
+		function changeButtonAction(button) {
+			var action = button.getAttribute("data-action");
+			var buttons = document.querySelectorAll("#modal-xl .modal-footer .btn-primary, #modal-xl .modal-footer .btn-info, #modal-xl .modal-footer .btn-danger");
+			buttons.forEach(function (btn) {
+				btn.style.display = "none"; // 모든 버튼 숨기기
+			});
+			if (action === "modify") {
+				document.querySelector("#modal-xl .modal-footer .btn-info").style.display = "block"; // 수정 버튼 표시
+				document.querySelector("#modal-xl .modal-footer .btn-danger").style.display = "block"; // 삭제 버튼 표시
+			} else if (action === "create") {
+				document.querySelector("#modal-xl .modal-footer .btn-primary").style.display = "block"; // 등록 버튼 표시
+			}
+		}
+
+		function imgInit(index, item) {
+			var str = "";
+			if (item.imgPath != null) {
+				str += '<div class="callout" style="height: 20rem; width: 100%; display: block;">'
+					+ '<img style="width: 100%; height: 100%;" src="data:image/jpeg;base64,' + item.imgPath + '">'
+					+ '</div>'
+				return str;
+			} else {
+				str += '<div class="callout" style="height: 20rem; width: 100%; display: block;">'
+					+ '<p>' + item.contents + '</p>'
+					+ '</div>'
+				return str;
+			}
+		}
+		function validation(button) {
+			var validate = true;
+			$(".validate").each(function () {
+				var value = $(this).val();
+
+				// 선택되지 않은 값이나 입력값이 없는 경우 처리
+				if (value == "" || value == null || value == '') {
+					$(this).addClass("is-invalid");
+					validate = false;
+				}
+			});
+			if (!validate) {
+				return false;
+			} else {
+
+				for (var i = 0; i < QUESTION_ARRAY.length; i++) {
+					var formData = new FormData();
+					var item = QUESTION_ARRAY[i];
+					// 파일 추가
+					if (item.file) {
+						formData.append('files', item.file);
+					} else {
+						formData.append('files', new Blob([], {type: 'application/octet-stream'}), 'empty.txt');
+					}
+					// 기타 필드 추가
+					formData.append('titles', new Blob([JSON.stringify(item.title)], {type: "application/json"}));
+					formData.append('contents', new Blob([JSON.stringify(item.contents)], {type: "application/json"}));
+					// 추가적인 필드가 있다면 여기에 추가해주세요
+					$.ajax({
+						url: '/mng/exam/create', // 서버의 URL을 입력해주세요
+						type: 'POST', // POST 요청으로 전송합니다
+						data: formData, // FormData를 전송합니다
+						processData: false,
+						contentType: false,
+						success: function (response) {
+							// 요청이 성공적으로 처리되었을 때 실행되는 콜백 함수
+							console.log('전송 성공:', response);
+							// 전송 후 필요한 작업을 수행해주세요
+						},
+						error: function (xhr, status, error) {
+							// 요청이 실패했을 때 실행되는 콜백 함수
+							console.error('전송 실패:', status, error);
+							// 실패 시 처리할 작업을 수행해주세요
+						}
+					});
+				}
+			}
+		}
+		function rowAdd() {
+			QUESTION_ARRAY.push({});
+			arrayInit();
+		}
+		function rowDel() {
+			if (QUESTION_ARRAY.length > 0) {
+				QUESTION_ARRAY.pop(); // 배열의 마지막 요소를 삭제합니다.
+				arrayInit();
+			}
+		}
+		function arrayInit() {
+			$("#qeustionDiv").empty();
+			$.each(QUESTION_ARRAY, function (index, item) {
+				$("#qeustionDiv").append(
+					"<div class=\"col-12\">" +
+					"<div class=\"row\">" +
+					"<div class=\"col-12 hr\">" +
+					"<div class=\"row align-items-center\">" +
+					"<div class=\"col-2\">" +
+					"<h3 class=\"p-3 num text-center\">" + (index + 1) + "</h3>" +
+					"</div>" +
+					"<div class=\"col-10\">" +
+					"<div class=\"input-group\">" +
+					'<input value="' + (item.title === undefined ? '' : item.title) + '" name="title" type=\"text\" key=\"title\" index=\"' + index + '\" class=\"form-control questionTitle validate\" placeholder=\"제목\">' +
+					"</div>" +
+					"</div>" +
+					"</div>" +
+					"</div>" +
+					"<div class=\"col-12\">" +
+					"<div class=\"row\">" +
+					"<div class=\"col-2\">" +
+					"<div class=\"col-sm-12\">" +
+					"<img id=\"preview" + index + "\" key=\"src\" index=\"" + index + "\" class=\"card-img-top imgSrc\" data-src=\"holder.js/100px225?theme=thumb&amp;bg=55595c&amp;fg=eceeef&amp;text=Thumbnail\" " +
+					"alt=\"Thumbnail [100%x225]\" src=\"" + (item.src === undefined ? "/img/thumbnail.svg" : item.src) + "\" " +
+					"data-holder-rendered=\"true\" style=\"height: 10rem; width: 100%; display: block;\">" +
+					"</div>" +
+					"<div class=\"col-sm-12\">" +
+					"<div class=\"custom-file mt-3 mb-3\">" +
+					'<input style="display:none;" value="' + (item.file === undefined ? '' : item.file) + '" name=\"imgPath\" key=\"imgPath\" type=\"file\" index=\"' + index + '\" class=\"custom-file-input imgFile\" id=\"customFile' + index + '\">' +
+					"<input value=\"" + (item.imgPath === undefined ? '' : item.imgPath) + "\" name=\"imgName\" key=\"imgName\" type=\"hidden\" index=\"" + index + "\" class=\"imgName selected\" id=\"imgName" + index + "\">" +
+					"<label class=\"custom-file-label\" for=\"customFile" + index + "\">" +
+					'' + (item.imgName === undefined ? '' : item.imgName) + '' +
+					"</label>" +
+					"</div>" +
+					"</div>" +
+					"</div>" +
+					"<div class=\"col-10\">" +
+					"<textarea name=\"contents\"  value=\"" + (item.contents === undefined ? '' : item.contents) + "\" index=\"" + index + "\" key=\"contents\" class=\"form-control form-control-lg questionTestArea validate\" style=\"height: 100%;\" row=\"4\" id=\"validationTextarea\" placeholder=\"문제\">" +
+					"" + (item.contents === undefined ? '' : item.contents) + "" +
+					"</textarea>" +
+					"</div>" +
+					"</div>" +
+					"</div>" +
+					"</div>" +
+					"</div>"
+				);
+			});
+			$(".questionTestArea, .questionTitle").change(function () {
+				var index = $(this).attr('index');
+				var value = $(this).val();
+				var key = $(this).attr('key');
+				QUESTION_ARRAY[index][key] = value;
+			});
+
+			$(".custom-file-input").on("change", function (e) {
+				var fileName = $(this).val().split("\\").pop();
+				var filePath = $(this).val();
+				var index = $(this).attr('index');
+				var file = $(this)[0].files[0];
+				console.log('파일 : ' + file);
+				console.log('파일 경로 : ' + filePath);
+				console.log('파일명 : ' + fileName);
+				$(this).siblings(this).addClass("selected").html(fileName);
+				if (fileName != '') {
+					var reader = new FileReader();
+					reader.onload = function (event) {
+						$('#preview' + index).attr('src', event.target.result);
+						QUESTION_ARRAY[index]['src'] = event.target.result;
+						QUESTION_ARRAY[index]['imgPath'] = filePath;
+						QUESTION_ARRAY[index]['imgName'] = fileName;
+						QUESTION_ARRAY[index]['file'] = file;
+					};
+					reader.readAsDataURL(file);
+				}
+			});
+
+		}
+		function score(pkExamResultSeq, divn) {
+			$.ajax({
+				url: '/mng/exam/result/score',
+				type: 'POST',
+				data: {
+					pkExamResultSeq: pkExamResultSeq,
+					divn: divn
+				},
+				dataType: 'json',
+				success: function (data) {
+
+
+				},
+				error: function (xhr, status, error) {
+					console.log(error); // 에러 처리
+				}
+			});
+		}
+
+		$(document).ready(function () {
+
+			$('.modal').on('show.bs.modal', function (e) {
+				// 모달이 열릴 때 실행되는 코드
+				//$(this).find('form')[0].reset(); // 입력 필드 초기화
+				// 테이블 초기화
+				QUESTION_ARRAY = [];
+				arrayInit();
+			});
+			$('.modal').on('hidden.bs.modal', function (e) {
+				// 모달이 닫힐 때 실행되는 코드
+				//$(this).find('form')[0].reset(); // 입력 필드 초기화
+				// 테이블 초기화
+				QUESTION_ARRAY = [];
+				arrayInit();
+			});
+			$('.startBtn').click(function () {
+				// AJAX 호출
+				var pkExamSeq = $(this).attr('pkExamSeq');
+				$.ajax({
+					url: '/mng/exam/start',
+					type: 'POST',
+					data: {
+						pkExamSeq: pkExamSeq
+					},
+					dataType: 'json',
+					success: function (data) {
+
+					},
+					error: function (xhr, status, error) {
+						console.log(error); // 에러 처리
+					}
+				});
+			});
+
+			$('.updateBtn').click(function () {
+				// AJAX 호출
+				var pkExamSeq = $(this).attr('pkExamSeq');
+				$.ajax({
+					url: '/getExamDetailList',
+					type: 'POST',
+					data: {
+						pkExamSeq: $(this).attr('pkExamSeq')
+					},
+					dataType: 'json',
+					success: function (data) {
+						var IMG_ARRAY = [];
+						IMG_ARRAY = data;
+						$("#pkExamSeq").val(pkExamSeq);
+						$("#sampleDiv").empty();
+						$.each(IMG_ARRAY, function (index, item) {
+							$("#sampleDiv").append(
+								'<div class="col-12 hr">' +
+								'<div class="row align-items-center">' +
+								'<div class="col-2">' +
+								'<h3 class="p-3 num text-center">' + (index + 1) + '</h3>' +
+								'</div>' +
+								'<div class="col-10">' +
+								'<div class="input-group">' +
+								'<span>'
+								+ item.title +
+								'</span>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'<div class="col-12">' +
+								'<div class="row">' +
+								'<div class="col-6">' +
+								imgInit(index, item) +
+								'</div>' +
+								'<div class="col-6">' +
+								'<textarea name="answer" index="' + index + '" key="contents"' +
+								'class="form-control form-control-lg validate"' +
+								'style="height: 20rem;" row="6" id="answer" placeholder="정답">' +
+								'</textarea>' +
+								'</div>' +
+								'</div>' +
+								'</div>'
+							);
+						});
+
+
+					},
+					error: function (xhr, status, error) {
+						console.log(error); // 에러 처리
+					}
+				});
+			});
+
+			$('.resultBtn').click(function () {
+				// AJAX 호출
+				var buttonValue = $(this).attr('pkUserSeq');
+				$.ajax({
+					url: '/getExamResultDetailList',
+					type: 'POST',
+					data: {
+						pkUserSeq: $(this).attr('pkUserSeq')
+					},
+					dataType: 'json',
+					success: function (data) {
+						var IMG_ARRAY = [];
+						IMG_ARRAY = data;
+						console.log(IMG_ARRAY)
+						//$("#pkExamSeq").val(pkExamSeq);
+						$("#resultDiv").empty();
+						$.each(IMG_ARRAY, function (index, item) {
+							$("#resultDiv").append(
+								'<div class="col-12 hr">' +
+								'<div class="row align-items-center">' +
+								'<div class="col-2">' +
+								'<h3 class="p-3 num text-center">' + (index + 1) + '</h3>' +
+								'</div>' +
+								'<div class="col-5">' +
+								'<div class="input-group">' +
+								'<span>'
+								+ item.title +
+								'</span>' +
+								'</div>' +
+								'</div>' +
+								'<div class="col-5">' +
+								'<div class="row">' +
+								'<div class="6">' +
+								'<div class="form-group pr-1">' +
+								'<div class="custom-control custom-radio">' +
+								'<input class="custom-control-input checkAns" pkExamResultSeq="' + item.pkExamResultSeq + '" value="' + item.ansResult + '" type="checkbox" id="true' + index + '" index="' + index + '" checked>' +
+								'<input style="display: none;" type="text" value="Y" id="ansResult' + index + '" name="ansResult">' +
+								'<label for="true' + index + '" class="custom-control-label">정답</label>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'<div class="col-12">' +
+								'<div class="row">' +
+								'<div class="col-6">' +
+								imgInit(index, item) +
+								'</div>' +
+								'<div class="col-6">' +
+								'<textarea value="' + item.answer + '" name="answer" index="' + index + '" key="contents"' +
+								'class="form-control form-control-lg validate"' +
+								'style="height: 20rem;" row="6" id="answer" placeholder="정답">' +
+								'' + item.answer + '' +
+								'</textarea>' +
+								'<input type="hidden" name="pkExamResultSeq" value="' + item.pkExamResultSeq + '">' +
+								'</div>' +
+								'</div>' +
+								'</div>'
+							);
+						});
+						$(".checkAns").click(function () {
+							// 클릭한 checkAns 클래스를 가진 요소의 라디오 버튼을 선택
+							var index = $(this).attr("index");
+							// 라디오 버튼이 체크되어 있는지 확인
+							if ($(this).is(":checked")) {
+								// 체크되어 있다면 value 값을 "Y"로 설정
+								$("#ansResult" + index).attr("value", "Y");
+							} else {
+								// 체크되어 있지 않다면 value 값을 "N"으로 설정
+								$("#ansResult" + index).attr("value", "N");
+							}
+						});
+					},
+					error: function (xhr, status, error) {
+						console.log(error); // 에러 처리
+					}
+				});
+			});
+
+			$('.resultDoneBtn').click(function () {
+				// AJAX 호출
+				var pkUserSeq = $(this).attr('pkUserSeq');
+				$.ajax({
+					url: '/getExamResultDoneDetailList',
+					type: 'POST',
+					data: {
+						pkUserSeq: $(this).attr('pkUserSeq')
+					},
+					dataType: 'json',
+					success: function (data) {
+						var IMG_ARRAY = [];
+						IMG_ARRAY = data;
+						//$("#pkExamSeq").val(pkExamSeq);
+						$("#resultDoneDiv").empty();
+						$.each(IMG_ARRAY, function (index, item) {
+							$("#resultDoneDiv").append(
+								'<div class="col-12 hr">' +
+								'<div class="row align-items-center">' +
+								'<div class="col-2">' +
+								'<h3 class="p-3 num text-center">' + (index + 1) + '</h3>' +
+								'</div>' +
+								'<div class="col-5">' +
+								'<div class="input-group">' +
+								'<span>'
+								+ item.title +
+								'</span>' +
+								'</div>' +
+								'</div>' +
+								'<div class="col-5">' +
+								'<div class="row">' +
+								'<div class="6">' +
+								'<div class="form-group pr-1">' +
+								'<div class="custom-control custom-radio">' +
+								'<input class="custom-control-input checkAns" pkExamResultSeq="' + item.pkExamResultSeq + '" value="' + item.ansResult + '" type="checkbox" id="true' + index + '" index="' + index + '" checked>' +
+								'<input style="display: none;" type="text" value="' + item.ansResult + '" id="ansResult' + index + '" name="ansResult">' +
+								'<label for="true' + index + '" class="custom-control-label">정답</label>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'</div>' +
+								'<div class="col-12">' +
+								'<div class="row">' +
+								'<div class="col-6">' +
+								imgInit(index, item) +
+								'</div>' +
+								'<div class="col-6">' +
+								'<textarea value="' + item.answer + '" name="answer" index="' + index + '" key="contents"' +
+								'class="form-control form-control-lg validate"' +
+								'style="height: 20rem;" row="6" id="answer" placeholder="정답">' +
+								'' + item.answer + '' +
+								'</textarea>' +
+								'<input type="hidden" name="pkExamResultSeq" value="' + item.pkExamResultSeq + '">' +
+								'</div>' +
+								'</div>' +
+								'</div>'
+							);
+							if (item.ansResult == "N") {
+								$("input:checkbox[id='true" + index + "']").prop("checked", false);
+							}
+						});
+						$(".checkAns").click(function () {
+							// 클릭한 checkAns 클래스를 가진 요소의 라디오 버튼을 선택
+							var index = $(this).attr("index");
+							// 라디오 버튼이 체크되어 있는지 확인
+							if ($(this).is(":checked")) {
+								// 체크되어 있다면 value 값을 "Y"로 설정
+								$("#ansResult" + index).attr("value", "Y");
+							} else {
+								// 체크되어 있지 않다면 value 값을 "N"으로 설정
+								$("#ansResult" + index).attr("value", "N");
+							}
+						});
+					},
+					error: function (xhr, status, error) {
+						console.log(error); // 에러 처리
+					}
+				});
+			});
+		});
+
+	</script>
+	</th:block>
+
+</html>

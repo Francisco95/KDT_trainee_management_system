@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layout/std/stdAiLayout}">
+<th:block layout:fragment="content">
+	<div class="row">
+		<div class="col-12 p-5">
+			<div class="row">
+				<div class="col-6">
+					<h2>용어사전</h2>
+				</div>
+				<div class="card-tools col-6 text-right">
+					<button data-toggle="modal" data-target="#modal-xl" type="button" class="btn btn-primary"
+						data-action="create">
+						<span>등록</span>
+					</button>
+				</div>
+			</div>
+			<!-- /.card-header -->
+			<table class="table">
+				<thead>
+					<tr>
+						<th style="width:5%;">No.</th>
+						<th>용어명</th>
+						<th style="width:40%;">뜻</th>
+						<th style="width:5%;">수정</th>
+						<th style="width:5%;">삭제</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr th:each="item, index : ${resultList}">
+						<td th:text="${index.count}"></td>
+						<td th:text="${item.word}"></td>
+						<td th:text="${item.content}"></td>
+						<td>
+							<button class="btn btn-info updateBtn" data-toggle="modal" data-target="#modal-xl-two"
+								th:attr="pkDictionarySeq=${item.pkDictionarySeq}" type="button" data-action="update">
+								<span>수정</span>
+							</button>
+						</td>
+						<td>
+							<button class="btn btn-danger updateBtn" th:attr="pkDictionarySeq=${item.pkDictionarySeq}"
+								type="button" data-action="delete"
+								th:onclick="|location.href='/std/ai/dict/delete/${item.pkDictionarySeq}'|">
+								<span>삭제</span>
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!-- /.card-body -->
+			<div class="card-footer">
+			</div>
+		</div>
+	</div>
+	<footer>
+
+		<nav aria-label="Page navigation example">
+			<ul class="pagination justify-content-center">
+				<li class="page-item previous th-disabled" th:classappend="${paging.prev == false} ? 'disabled'">
+					<a th:href="@{/std/ai/dict(page=${paging.startPage - 1})}" tabindex="0"
+						class="page-link">Previous</a>
+				</li>
+				<div th:each="pNo: ${#numbers.sequence(paging.startPage, paging.endPage)}">
+					<li class="page-item" th:classappend="${paging.cri.page == pNo} ? 'active'">
+						<a th:href="@{/std/ai/dict(page=${pNo})}" tabindex="0" aria-controls="dataTable"
+							class="page-link" th:text="${pNo}"></a>
+					</li>
+				</div>
+				<li class="page-item next th-disabled" th:classappend="${paging.next == false} ? 'disabled'">
+					<a th:href="@{/std/ai/dict(page=${paging.endPage + 1})}" tabindex="0" aria-controls="dataTable"
+						class="page-link">Next</a>
+				</li>
+			</ul>
+		</nav>
+	</footer>
+
+	<div class="modal fade" id="modal-xl-two" style="display: none;" aria-hidden="true">
+		<form action="/std/aidict/update" method="post">
+			<div class="modal-dialog modal-dialog-cented modal-xl">
+				<div class="modal-content">
+					<div class="col-12 modal-header">
+						<div class="col-6">
+							<h4 class="col-12 modal-title">단어장</h4>
+						</div>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-12">
+									<div class="form-group">
+										<input type="hidden" id="pkDictionarySeq" name="pkDictionarySeq">
+										<label>카테고리</label>
+										<input type="text" class="form-control" name="classId" id="updateClassId">
+										<label>용어</label>
+										<input type="text" class="form-control" placeholder="Enter ..." name="word"
+											id="updateWord">
+									</div>
+								</div>
+								<div class="col-12">
+
+									<div class="form-group">
+										<label>뜻</label>
+										<textarea class="form-control" rows="3" placeholder="Enter ..."
+											id="updateContent" name="content"></textarea>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+						<button type="submit" class="btn btn-primary modelBtn" divn="update">
+							<span>수정</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- Modal -->
+	<div class="modal fade" id="modal-xl" style="display: none;" aria-hidden="true">
+		<form action="/std/aidict/create" method="POST" onsubmit="return validation()">
+			<div class="modal-dialog modal-dialog-cented modal-xl">
+				<div class="modal-content">
+					<div class="col-12 modal-header">
+						<div class="col-6">
+							<h4 class="col-12 modal-title">단어장</h4>
+						</div>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+							<div class="row">
+								<div class="col-12">
+									<div class="form-group">
+										<input type="hidden" id="pkDictionarySeq" name="pkDictionarySeq" value="0">
+										<input type="hidden" name="pkUserSeq" th:value="${session.loginDto.pkUserSeq}">
+										<label>카테고리</label>
+										<input type="text" class="form-control" name="classId" id="classId">
+										<label>용어</label>
+										<input type="text" class="form-control" placeholder="Enter ... " name="word"
+											id="word">
+									</div>
+								</div>
+								<div class="col-12">
+
+									<div class="form-group">
+										<label>뜻</label>
+										<textarea class="form-control" rows="3" placeholder="Enter ..." id="content"
+											name="content"></textarea>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+						<button type="submit" class="btn btn-primary modelBtn" divn="create">
+							<span>등록</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- Modal -->
+	<script>
+		$(document).ready(function () {
+			$('.updateBtn').click(function () {
+
+				$.ajax({
+					url: '/getDictList',
+					type: 'POST',
+					data: {
+						pkDictionarySeq: $(this).attr('pkDictionarySeq')
+					},
+					dataType: 'json',
+					success: function (data) {
+						var pkDictionarySeq = data.pkDictionarySeq;
+						var category = data.classId;
+						var word = data.word;
+						var content = data.content;
+						console.log(data)
+
+						$("#pkDictionarySeq").val(data.pkDictionarySeq);
+						$("#updateClassId").val(data.classId);
+						$("#updateWord").val(data.word);
+						$("#updateContent").val(data.content);
+					},
+					error: function (xhr, status, error) {
+						console.log(error); // 에러 처리
+					}
+				});
+
+			});
+		})
+
+	</script>
+</th:block>
+
+</html>

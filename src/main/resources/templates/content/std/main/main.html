@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layout/std/stdDeshboardLayout}">
+<!-- Main content -->
+
+<th:block layout:fragment="content">
+	<!--성장 그래프 상세보기 모달창-->
+	<div class="modal fade" id="modal-xl" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-cented modal-xl">
+			<div class="modal-content">
+				<div class="col-12 modal-header">
+					<h4 class="col-12 modal-title text-center">역량</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-12">
+							<div class="card">
+								<div class="chart">
+									<canvas id="aiChart"
+										style="min-height: 250px; height: 500px; max-height: 500px; max-width: 100%; display: block; width: 406px;"
+										width="812" height="500" class="chartjs-render-monitor gameChart"></canvas>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer justify-content-between">
+					<div class="col-12">
+						<div class="col-1 mx-auto">
+							<button type="button" class="btn btn-primary" data-dismiss="modal">닫기</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--마이페이지-->
+	<!-- Main content -->
+	<section class="content">
+		<div class="p-2">
+			<div class="col-10">
+				<div>
+					<span>
+						<h2>마이페이지</h2>
+					</span>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div class="content">
+		<div class="row">
+			<!--캘린더-->
+			<div class="col-xl-8 col-sm-12">
+				<div class="card card-primary card-outline">
+					<div class="card-body">
+						<div id="calendar"></div>
+					</div>
+
+				</div>
+			</div>
+			<div class="col-xl-4 col-sm-12">
+				<div class="card card-primary card-outline">
+					<div class="card-header">
+						<div class="row">
+							<div class="col-6">
+								<h4>학생분석</h4>
+							</div>
+							<div class="card-tools col-6 text-right">
+								<button data-toggle="modal" data-target="#modal-xl" type="button"
+									class="btn btn-primary btn-sm chartModalBtn"
+									th:data-pkUserSeq="${session.loginDto.pkUserSeq}">
+									<span>보기</span>
+								</button>
+
+							</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="row">
+							<div class="col-4">
+								<div class="card">
+									<div class="card-body">
+										<div class="row">
+											<div class="col-12">
+												<h4 style="text-align: center;">AI</h4>
+											</div>
+											<div class="col-12">
+												<button type="button" class="btn btn-block btn-outline-dark btn-lg">
+													<h1 th:style="|color:${aiResult.color};|"><i class="fas fa-brain"></i>
+													</h1>
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-4">
+								<div class="card">
+									<div class="card-body">
+										<div class="row">
+											<div class="col-12">
+												<h4 style="text-align: center;">Game</h4>
+											</div>
+											<div class="col-12">
+												<button type="button" class="btn btn-block btn-outline-dark btn-lg">
+													<h1 th:style="|color:${gameResult.color};|"><i class="fas fa-dice" ></i>
+													</h1>
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-4">
+								<div class="card">
+									<div class="card-body">
+										<div class="row">
+											<div class="col-12">
+												<h4 style="text-align: center;">Test</h4>
+											</div>
+											<div class="col-12">
+												<button type="button" class="btn btn-block btn-outline-dark btn-lg">
+													<h1 th:style="|color:${examResult.color};|"><i class="fas fa-clipboard-check"></i>
+													</h1>
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="info-box" style="height: 15rem;">
+							<div class="info-box-content">
+								<div class="row">
+									<div class="col-12">
+										<span class="info-box-number" th:utext="${session.loginDto.name}"></span>
+										<span class="info-box-number">AI</span>
+										<span class="info-box-text"
+											th:text="${'정답문제: '+ aiResult.oValue + ' 틀린문제: '+ aiResult.xValue}">
+										</span>
+										<span class="info-box-number">Game</span>
+										<span class="info-box-text"
+											th:text="${'정답문제: '+ gameResult.oValue + ' 틀린문제: '+ gameResult.xValue}">
+										</span>
+										<span class="info-box-number">test</span>
+										<span class="info-box-text"
+											th:text="${'정답문제: '+ examResult.oValue + ' 틀린문제: '+ examResult.xValue}">
+										</span>
+									</div>
+								</div>
+
+
+							</div>
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<!--차트-->
+		</div>
+		<!--1번 row-->
+	</div>
+	<script>
+		var CALENDAR_ARRAY = [];
+		var GAME_CHART_DATA = '';
+		var AI_CHART_DATA = '';
+		var EXAM_CHART_DATA = '';
+		// 랜덤 색상 생성 함수
+		function getRandomColor() {
+			var letters = '0123456789ABCDEF';
+			var color = '#';
+			for (var i = 0; i < 6; i++) {
+				color += letters[Math.floor(Math.random() * 16)];
+			}
+			return color;
+		}
+		$(document).ready(function () {
+
+			/* initialize the calendar
+			-----------------------------------------------------------------*/
+			//Date for the calendar events (dummy data)
+			var Calendar = FullCalendar.Calendar;
+			var Draggable = FullCalendar.Draggable;
+
+			var calendarEl = document.getElementById('calendar');
+
+			var calendar = new FullCalendar.Calendar(calendarEl, {
+				headerToolbar: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'dayGridMonth,timeGridWeek,timeGridDay'
+				},
+				themeSystem: 'bootstrap',
+				locale: 'ko',
+				buttonText: {
+					today: '오늘',
+					month: '월간',
+					week: '주간',
+					day: '일간'
+				},
+				// Random default events
+				events: CALENDAR_ARRAY,
+				editable: false,
+				droppable: false, // this allows things to be dropped onto the calendar !!!
+				eventRender: function (info) {
+					info.el.style.backgroundColor = info.event.backgroundColor;
+					info.el.style.borderColor = info.event.borderColor;
+				}
+			});
+
+			calendar.render();
+
+
+			$.ajax({
+				url: '/calendar/list',
+				type: 'POST',
+				dataType: 'json',
+				success: function (data) {
+					// 이벤트 리스트를 배열로 변환
+					var CALENDAR_ARRAY = data.map(function (event) {
+
+						return {
+							id: event.pkSubjectSeq,
+							title: event.subjectName,
+							start: event.subStartDt, // 이벤트 시작 일자
+							end: event.subEndDt, // 이벤트 종료 일자
+							// 필요한 다른 이벤트 속성들...
+							backgroundColor: getRandomColor(), // 랜덤 색상
+							borderColor: getRandomColor() // 랜덤 색상
+						};
+					});
+
+					// FullCalendar에 이벤트 배열 설정
+					calendar.setOption('events', CALENDAR_ARRAY);
+				},
+				error: function (xhr, status, error) {
+					console.log(error);
+				}
+			});
+
+
+
+			$('.chartModalBtn').click(function () {
+				var pkUserSeq = $(this).attr('data-pkuserseq');
+				var url = '/chart/list/' + pkUserSeq;
+				// AJAX 호출
+				$.ajax({
+					url: url,
+					type: 'POST',
+					dataType: 'json',
+					success: function (data) {
+						GAME_CHART_DATA = '';
+						AI_CHART_DATA = '';
+						EXAM_CHART_DATA = '';
+						GAME_CHART_DATA = data.gameResult;
+						AI_CHART_DATA = data.aiResult;
+						EXAM_CHART_DATA = data.examResult;
+						var marksData = {
+							labels: ["AI", "GAME", "TEST"],
+							datasets: []
+						};
+						var RGB_1 = Math.floor(Math.random() * (255 + 1))
+						var RGB_2 = Math.floor(Math.random() * (255 + 1))
+						var RGB_3 = Math.floor(Math.random() * (255 + 1))
+						var strRGBA = 'rgba(' + RGB_1 + ',' + RGB_2 + ',' + RGB_3 + ',0.3)'
+
+						marksData.datasets.push({
+							label: ["최대"],
+							backgroundColor: strRGBA,
+							borderColor: strRGBA,
+							pointBackgroundColor: strRGBA,
+							pointBorderColor: '#fff',
+							pointHoverBackgroundColor: '#fff',
+							pointHoverBorderColor: 'rgb(54, 162, 235)',
+							data: [AI_CHART_DATA.maxVal, GAME_CHART_DATA.maxVal, EXAM_CHART_DATA.maxVal]
+						});
+
+						var RGB_1 = Math.floor(Math.random() * (255 + 1))
+						var RGB_2 = Math.floor(Math.random() * (255 + 1))
+						var RGB_3 = Math.floor(Math.random() * (255 + 1))
+						var strRGBA = 'rgba(' + RGB_1 + ',' + RGB_2 + ',' + RGB_3 + ',0.3)'
+
+						marksData.datasets.push({
+							label: ["최소"],
+							backgroundColor: strRGBA,
+							borderColor: strRGBA,
+							pointBackgroundColor: strRGBA,
+							pointBorderColor: '#fff',
+							pointHoverBackgroundColor: '#fff',
+							pointHoverBorderColor: 'rgb(54, 162, 235)',
+							data: [AI_CHART_DATA.minVal, GAME_CHART_DATA.minVal, EXAM_CHART_DATA.minVal]
+						});
+						var RGB_1 = Math.floor(Math.random() * (255 + 1))
+						var RGB_2 = Math.floor(Math.random() * (255 + 1))
+						var RGB_3 = Math.floor(Math.random() * (255 + 1))
+						var strRGBA = 'rgba(' + RGB_1 + ',' + RGB_2 + ',' + RGB_3 + ',0.3)'
+						marksData.datasets.push({
+							label: ["나"],
+							backgroundColor: strRGBA,
+							borderColor: strRGBA,
+							pointBackgroundColor: strRGBA,
+							pointBorderColor: '#fff',
+							pointHoverBackgroundColor: '#fff',
+							pointHoverBorderColor: 'rgb(54, 162, 235)',
+							data: [AI_CHART_DATA.userVal, GAME_CHART_DATA.userVal, EXAM_CHART_DATA.userVal]
+						});
+						var RGB_1 = Math.floor(Math.random() * (255 + 1))
+						var RGB_2 = Math.floor(Math.random() * (255 + 1))
+						var RGB_3 = Math.floor(Math.random() * (255 + 1))
+						var strRGBA = 'rgba(' + RGB_1 + ',' + RGB_2 + ',' + RGB_3 + ',0.3)'
+						marksData.datasets.push({
+							label: ["평균"],
+							backgroundColor: strRGBA,
+							borderColor: strRGBA,
+							pointBackgroundColor: strRGBA,
+							pointBorderColor: '#fff',
+							pointHoverBackgroundColor: '#fff',
+							pointHoverBorderColor: 'rgb(54, 162, 235)',
+							data: [AI_CHART_DATA.avgVal, GAME_CHART_DATA.avgVal, EXAM_CHART_DATA.avgVal]
+						});
+
+
+						var marksCanvas = document.getElementById("aiChart");
+
+						var chartOptions = {
+							responsive: true
+
+						};
+
+						var radarChart = new Chart(marksCanvas, {
+							type: 'radar',
+							data: marksData,
+							options: chartOptions
+						});
+
+					},
+					error: function (xhr, status, error) {
+						console.log(error); // 에러 처리
+					}
+				});
+			});
+
+
+
+
+		});
+	</script>
+</th:block>
+
+</html>

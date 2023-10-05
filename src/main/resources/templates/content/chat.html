@@ -1,0 +1,20 @@
+<!-- Default Layout Import-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{common/layout/emptyLayout}">
+<th:block layout:fragment="content">
+<link rel="stylesheet" type="text/css" href="/css/chat.css">
+
+	<div id='chatt'>
+		<h1>WebSocket Chatting</h1>
+		<input type='text' id='mid' value='홍길동'>
+		<input type='button' value='로그인' id='btnLogin'>
+		<br/>
+		<div id='talk'></div>
+		<div id='sendZone'>
+			<textarea id='msg' value='hi...' ></textarea>
+			<input type='button' value='전송' id='btnSend'>
+		</div>
+	</div>
+	<script src='./js/chat.js'></script>
+</th:block>
+</html>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.momento.notice.mapper.NoticeMapper">
+	<!-- xml파일을 사용할 mapper가 있는 경로 -->
+		<insert id="insertNotice" parameterType="project.momento.notice.dto.NoticeDto">
+			INSERT INTO NOTICE(
+				PK_EDUCATION_SEQ
+				, TITLE
+				, CONTENTS
+				, REGIST_ID
+				, REGIST_DT
+				
+			)VALUES(
+				#{pkEducationSeq}
+				,#{title}
+				,#{contents}
+				,#{registId}
+				, SYSDATE()
+			)
+			ON DUPLICATE KEY UPDATE
+				UPDATE_ID = #{registId},
+				UPDATE_DT = SYSDATE();
+		</insert>
+	
+	<select id="getNoticeList" parameterType="int" resultType="project.momento.notice.dto.NoticeDto">
+		<![CDATA[
+			SELECT 
+				PK_NOTICE_SEQ,
+				PK_EDUCATION_SEQ,
+				TITLE,
+				CONTENTS,
+				USE_YN,
+				DEL_YN,
+				REGIST_ID,
+				DATE_FORMAT(REGIST_DT,'%Y-%m-%d') AS REGIST_DT,
+				UPDATE_ID,
+				UPDATE_DT
+			FROM NOTICE
+			WHERE PK_EDUCATION_SEQ = #{pkEducationSeq}
+			OR PK_EDUCATION_SEQ = 0
+			ORDER BY REGIST_DT DESC
+			LIMIT 5
+		]]>
+	</select>
+	
+	<select id="selectNoticeListCount" parameterType="hashmap" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM NOTICE
+		WHERE 1=1
+		ORDER BY PK_NOTICE_SEQ ASC
+	</select>
+	
+	<select id="selectNoticeList" parameterType="hashmap" resultType="project.momento.notice.dto.NoticeDto">
+		SELECT
+			PK_NOTICE_SEQ							AS pkNoticeSeq
+			, PK_FILE_SEQ							AS pkFileSeq
+			, PK_SUBJECT_SEQ						AS pkSubjectSeq
+			, TITLE									AS title
+			, CONTENTS								AS contents
+			, ETC									AS etc
+			, USE_YN								AS useYn
+			, DEL_YN								AS delYn
+			, REGIST_ID								AS registId
+			, DATE_FORMAT(REGIST_DT,'%Y-%m-%d')		AS registDt
+			, UPDATE_ID								AS updateId
+			, DATE_FORMAT(UPDATE_DT,'%Y-%m-%d')		AS updateDt
+			
+		FROM NOTICE
+		WHERE 1=1
+		ORDER BY PK_NOTICE_SEQ ASC
+		LIMIT #{pageStart}, #{perPageNum}
+	</select>
+	
+	<select id="selectNotice" parameterType="String" resultType="project.momento.notice.dto.NoticeDto">
+		<![CDATA[
+			SELECT
+				N.PK_NOTICE_SEQ                      AS PK_NOTICE_SEQ,
+				N.PK_EDUCATION_SEQ                   AS PK_EDUCATION_SEQ,
+				N.TITLE                              AS TITLE,
+				N.CONTENTS                           AS CONTENTS,
+				N.USE_YN                             AS USE_YN,
+				N.DEL_YN                             AS DEL_YN,
+				N.REGIST_ID                          AS REGIST_ID,
+				DATE_FORMAT(N.REGIST_DT,'%Y-%m-%d')  AS REGIST_DT
+			FROM NOTICE N
+			WHERE N.PK_NOTICE_SEQ = #{pkNoticeSeq}
+		]]>
+	</select>
+	
+	<update id="updateNotice" parameterType="project.momento.notice.dto.NoticeDto">
+		<![CDATA[
+			UPDATE NOTICE
+			SET
+				TITLE = #{title},
+				CONTENTS = #{contents},
+				UPDATE_ID = #{updateId},
+				UPDATE_DT = SYSDATE()
+			WHERE PK_NOTICE_SEQ = #{pkNoticeSeq}
+		]]>
+	</update>
+	
+	<delete id="deleteNotice" parameterType="String">
+		<![CDATA[
+			DELETE
+			FROM NOTICE
+			WHERE PK_NOTICE_SEQ = #{pkNoticeSeq}
+		]]>
+	</delete>
+	
+</mapper>
