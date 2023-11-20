@@ -38,6 +38,9 @@ SpringBoot + JSP를 이용한 통합 학 관리 시스템
 
 **메인화면**
 
+- 과목 및 학생 리스트 출력
+- 과목별 날짜 달력에 출력
+
 <details>
 <summary>더보기</summary>
   
@@ -45,6 +48,9 @@ SpringBoot + JSP를 이용한 통합 학 관리 시스템
 </details>
 
 **회원가입**
+
+- ID, Email 중복 체크
+- 우편번호 찾기
 
 <details>
 <summary>더보기</summary>
@@ -54,6 +60,10 @@ SpringBoot + JSP를 이용한 통합 학 관리 시스템
 
 **로그인**
 
+- ID, Pwd 일치 확인
+- ID, Pwd 찾기
+- 로그인 세션 생성
+
 <details>
 <summary>더보기</summary>
 
@@ -61,6 +71,9 @@ SpringBoot + JSP를 이용한 통합 학 관리 시스템
 </details>
 
 **공지사항**
+
+- 공지사항 리스트 최대 5개 출력
+- 공지사항 등록
 
 <details>
 <summary>더보기</summary>
@@ -70,6 +83,10 @@ SpringBoot + JSP를 이용한 통합 학 관리 시스템
 
 **교육등록**
 
+- 교육 등록 및 해당 교육 참여 학생 등록
+- 시작일 및 종료일 등록
+- 해당 교육에 포함된 과목 등록록
+
 <details>
 <summary>더보기</summary>
   
@@ -77,6 +94,10 @@ SpringBoot + JSP를 이용한 통합 학 관리 시스템
 </details>
 
 **질의응답**
+
+- 질문 등록 및 수정 삭제 기능
+- 답변 등록 및 수정 삭제 기능
+- 질문 삭제시 해당 질문에 답변 글 자동 삭제
 
 <details>
 <summary>더보기</summary>
@@ -86,6 +107,9 @@ SpringBoot + JSP를 이용한 통합 학 관리 시스템
 
 **시험등록**
 
+- 시험문제 등록 및 수정 삭제 기능
+- 이미지 파일 업로드 기능
+
 <details>
 <summary>더보기</summary>
   
@@ -93,6 +117,8 @@ SpringBoot + JSP를 이용한 통합 학 관리 시스템
 </details>
 
 **시험결과**
+
+- 푼 문제의 오답 체크 기능 및 점수 출력
 
 <details>
 <summary>더보기</summary>
